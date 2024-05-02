@@ -1,0 +1,34 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1>Profile of {{ candidate.user.username }}</h1>
+    <div class="row">
+        <div class="col-md-4">
+            {% if candidate.image %}
+            <img src="{{ candidate.image.url }}" alt="Profile image of {{ candidate.user.username }}" class="img-fluid rounded">
+            {% else %}
+            <img src="{% static 'myapp/img/default-profile.jpg' %}" alt="Default profile image" class="img-fluid rounded">
+            {% endif %}
+        </div>
+        <div class="col-md-8">
+            <h2>Ақпараттар</h2>
+            <p><strong>Аты-жөні:</strong> {{ candidate.user.username }}</p>
+            <p><strong>Email:</strong> {{ candidate.user.email }}</p>
+
+            {% if candidate.specialization %}
+    <p><strong>Мамандық:</strong> {{ candidate.specialization.title }}</p>
+{% else %}
+    <p><strong>Мамандық:</strong> Таңдалмаған</p>
+{% endif %}
+
+
+                    <p><strong>Қосылған күні:</strong> {{ candidate.date_added|date:"F d, Y" }}</p>
+            <h3>Биография</h3>
+            <p>{{ candidate.biography|default:"No biography provided." }}</p>
+            <a href="{% url 'profile_edit' %}" class="btn btn-primary">Жеке кабинетті өзгерту</a>  <!-- Кнопка для перехода к редактированию профиля -->
+        </div>
+    </div>
+</div>
+{% endblock %}

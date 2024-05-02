@@ -1,0 +1,20 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Results for {{ specialization.title }} Test</h2>
+    <p>Total Questions: {{ total_questions }}</p>
+    <p>Correct Answers: {{ correct_answers_count }}</p>
+    <p>Wrong Answers: {{ wrong_answers_count }}</p>
+    <p>Score: {{ percentage_correct }}%</p>
+    <div class="mt-4">
+        <h4>Detail Review:</h4>
+        {% for question, user_choice, is_correct in questions_detail %}
+        <div>
+            <p>Question: {{ question }}</p>
+            <p>Your Answer: {{ user_choice }} - {% if is_correct %}Correct{% else %}Incorrect{% endif %}</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

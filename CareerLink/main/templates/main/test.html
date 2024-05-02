@@ -1,0 +1,28 @@
+<!-- test.html -->
+
+{% extends 'main/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">{{ specialization.title }} Test</h2>
+    <form action="{% url 'submit_test' spec_id=specialization.id %}" method="post">
+        {% csrf_token %}      
+        {% for question in specialization.questions.all %}
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">{{ question.text }}</h5>
+                {% for choice in question.choices.all %}
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="question_{{ question.id }}" value="{{ choice.id }}" id="choice{{ choice.id }}">
+                    <label class="form-check-label" for="choice{{ choice.id }}">
+                        {{ choice.text }}
+                    </label>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
+{% endblock %}
