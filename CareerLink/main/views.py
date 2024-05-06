@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.forms import *
 from .models import *
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -21,8 +21,18 @@ def service(request):
     return render(request, "main/service.html")
 
 
-def contact(request):
-    return render(request, "main/contact.html")
+def contact_view(request):
+    if request.method == "POST":
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect(
+                "thank_you_page"
+            )  # Перенаправление на страницу благодарности
+    else:
+        form = ContactForm()
+
+    return render(request, "main/contact.html", {"form": form})
 
 
 def team(request):
@@ -100,48 +110,41 @@ def submit_test(request, spec_id):
     questions_detail = []
 
     if request.method == "POST":
-        # Сбор ответов пользователя и подсчет правильных ответов
-        for question in specialization.questions.all():
+        for question in Question.objects.filter(specialization=specialization):
             user_answer_id = request.POST.get(f"question_{question.id}")
             user_answers[question.id] = int(user_answer_id) if user_answer_id else None
-            if user_answer_id:
-                choice = question.choices.get(pk=user_answer_id)
-                is_correct = choice.is_correct
-                questions_detail.append((question.text, choice.text, is_correct))
-                if is_correct:
-                    correct_answers_count += 1
+            choice = question.choices.get(pk=user_answer_id)
+            if choice.is_correct:
+                correct_answers_count += 1
+            questions_detail.append(
+                {
+                    "question": question.text,
+                    "your_answer": choice.text,
+                    "is_correct": choice.is_correct,
+                }
+            )
 
         total_questions = specialization.questions.count()
+        attempt = TestAttempt.objects.create(
+            candidate=Candidate.objects.get(user=request.user),
+            specialization=specialization,
+            correct_answers=correct_answers_count,
+            total_questions=total_questions,
+        )
         wrong_answers_count = total_questions - correct_answers_count
-        percentage_correct = (correct_answers_count / total_questions) * 100
 
-        if percentage_correct >= 80:
-            # Обновление или создание кандидата в зависимости от существования записи
-            candidate, created = Candidate.objects.update_or_create(
-                user=request.user, defaults={"specialization": specialization}
-            )
-            if created:
-                message = "Congratulations! You have successfully passed the test and are now registered as a candidate."
-            else:
-                message = "Congratulations! Your specialization has been updated."
-            messages.success(request, message)
-        else:
-            messages.error(
-                request, "Unfortunately, you did not pass the test. Please try again."
-            )
-
-        # Передача результатов теста на страницу результатов
         context = {
+            "specialization": specialization,
             "total_questions": total_questions,
             "correct_answers_count": correct_answers_count,
             "wrong_answers_count": wrong_answers_count,
-            "percentage_correct": percentage_correct,
+            "percentage_correct": (correct_answers_count / total_questions) * 100,
             "questions_detail": questions_detail,
-            "specialization": specialization,
+            "passed": attempt.passed(),
         }
+
         return render(request, "main/test_results.html", context)
     else:
-        # Если метод не POST, отправить пользователя на страницу теста
         return redirect("test", spec_id=spec_id)
 
 
@@ -155,6 +158,23 @@ def view_candidates(request, spec_id):
     )
 
 
+def submit_contact(request):
+    if request.method == "POST":
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            ContactRequest.objects.create(
+                name=form.cleaned_data["name"],
+                email=form.cleaned_data["email"],
+                message=form.cleaned_data["message"],
+            )
+            # Перенаправление на страницу с подтверждением или обратно на контактную страницу с сообщением об успехе
+            render(request, "contact.html", {"form": form})
+    else:
+        form = ContactForm()
+
+    return render(request, "contact.html", {"form": form})
+
+
 def profile_view(request):
     candidate, created = Candidate.objects.get_or_create(
         user=request.user, defaults={"specialization": None}
@@ -162,15 +182,41 @@ def profile_view(request):
     return render(request, "main/profile_view.html", {"candidate": candidate})
 
 
+def specialization_detail(request, spec_id):
+    specialization = get_object_or_404(Specialization, pk=spec_id)
+    attempts = TestAttempt.objects.filter(specialization=specialization)
+
+    total_attempts = attempts.count()
+    passed_attempts = sum(1 for attempt in attempts if attempt.passed())
+    failed_attempts = total_attempts - passed_attempts
+
+    context = {
+        "specialization": specialization,
+        "total_attempts": total_attempts,
+        "passed_attempts": passed_attempts,
+        "failed_attempts": failed_attempts,
+        "attempts": attempts,
+    }
+    return render(request, "main/specialization_detail.html", context)
+
+
 @login_required
 def candidate_profile(request):
     candidate, created = Candidate.objects.get_or_create(user=request.user)
-    if request.method == "POST":
-        form = CandidateProfileForm(request.POST, request.FILES, instance=candidate)
-        if form.is_valid():
-            form.save()
-            return redirect("profile_view")  # Название URL для просмотра профиля
-    else:
-        form = CandidateProfileForm(instance=candidate)
+    user_form = CustomUserEditForm(request.POST or None, instance=request.user)
+    candidate_form = CandidateProfileForm(
+        request.POST or None, request.FILES or None, instance=candidate
+    )
 
-    return render(request, "main/candidate_profile.html", {"form": form})
+    if request.method == "POST":
+        if user_form.is_valid() and candidate_form.is_valid():
+            user_form.save()
+            candidate_form.save()
+            messages.success(request, "Профиль успешно обновлен.")
+            return redirect("profile_view")
+
+    return render(
+        request,
+        "main/candidate_profile.html",
+        {"user_form": user_form, "candidate_form": candidate_form},
+    )

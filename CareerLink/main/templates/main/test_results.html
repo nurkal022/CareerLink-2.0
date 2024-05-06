@@ -2,19 +2,67 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h2>Results for {{ specialization.title }} Test</h2>
-    <p>Total Questions: {{ total_questions }}</p>
-    <p>Correct Answers: {{ correct_answers_count }}</p>
-    <p>Wrong Answers: {{ wrong_answers_count }}</p>
-    <p>Score: {{ percentage_correct }}%</p>
+    <h2>{{ specialization.title }} бойынша тест нәтижелері</h2>
+    <p>Барлық сұрақтар: {{ total_questions }}</p>
+    <p>Дұрыс жауаптар: {{ correct_answers_count }}</p>
+    <p>Қате жауаптар: {{ wrong_answers_count }}</p>
+    <p>Сіздің нәтижеңіз: {{ percentage_correct }}%</p>
+    
+    <!-- Графика үшін орын -->
+    <div class="chart-container" style="position: relative; height:40vh; width:80vw;">
+        <canvas id="resultsChart"></canvas>
+    </div>
+    
     <div class="mt-4">
-        <h4>Detail Review:</h4>
-        {% for question, user_choice, is_correct in questions_detail %}
+        <h4>Жауаптарға толық шолу:</h4>
+        {% for detail in questions_detail %}
         <div>
-            <p>Question: {{ question }}</p>
-            <p>Your Answer: {{ user_choice }} - {% if is_correct %}Correct{% else %}Incorrect{% endif %}</p>
+            <p>Сұрақ: {{ detail.question }}</p>
+            <p>Сіздің жауабыңыз: {{ detail.your_answer }} - {% if detail.is_correct %}<b style="color: green;">Дұрыс</b>{% else %}<b style="color: red;">Қате</b>{% endif %}</p>
         </div>
         {% endfor %}
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    var ctx = document.getElementById('resultsChart').getContext('2d');
+    var resultsChart = new Chart(ctx, {
+        type: 'bar',  // Немесе 'pie', 'line' бойынша қалауыңызға байланысты
+        data: {
+            labels: ['Дұрыс жауаптар', 'Қате жауаптар'],
+            datasets: [{
+                label: 'Тест нәтижелері',
+                data: [{{ correct_answers_count }}, {{ wrong_answers_count }}],  // Айнымалылардың дұрыс берілгеніне көз жеткізіңіз
+                backgroundColor: [
+                    'rgba(75, 192, 192, 0.7)',  // Дұрыс жауаптар үшін жасыл түс
+                    'rgba(255, 99, 132, 0.7)'   // Қате жауаптар үшін қызыл түс
+                ],
+                borderColor: [
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(255, 99, 132, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1  // Тек сандар үшін, егер қажет болса
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: true
+                },
+                tooltip: {
+                    enabled: true
+                }
+            }
+        }
+    });
+</script>
 {% endblock %}

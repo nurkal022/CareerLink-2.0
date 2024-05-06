@@ -3,7 +3,7 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h1>Profile of {{ candidate.user.username }}</h1>
+    <h1>{{ candidate.user.username }} профильі</h1>
     <div class="row">
         <div class="col-md-4">
             {% if candidate.image %}
@@ -26,9 +26,14 @@
 
                     <p><strong>Қосылған күні:</strong> {{ candidate.date_added|date:"F d, Y" }}</p>
             <h3>Биография</h3>
-            <p>{{ candidate.biography|default:"No biography provided." }}</p>
+            <p>{{ candidate.biography|default:"Өмірбаяны көрсетілмеген." }}</p>
             <a href="{% url 'profile_edit' %}" class="btn btn-primary">Жеке кабинетті өзгерту</a>  <!-- Кнопка для перехода к редактированию профиля -->
         </div>
     </div>
 </div>
+
+
+<div class="container mt-5"></div>
+
+
 {% endblock %}

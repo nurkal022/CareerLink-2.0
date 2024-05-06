@@ -1,17 +1,25 @@
 {% extends 'main/base.html' %}
+{% load static %}
 
 {% block content %}
 <div class="container mt-5">
-    <h2>Candidates for {{ specialization.title }}</h2>
+    <h2>{{ specialization.title }} тізімі</h2>
     <div class="row">
         {% for candidate in candidates %}
         <div class="col-md-6 col-lg-4 mb-4">
-            <div class="card bg-light">
-                <div class="card-body text-center">
-                    <h5 class="card-title">{{ candidate.user.username }}</h5>
-                    <p class="card-text">Added on: {{ candidate.date_added }}</p>
+            <a href="{% url 'profile_view' %}" class="text-decoration-none text-dark">
+                <div class="card bg-light">
+                    <div class="card-body text-center">
+                        {% if candidate.image %}
+                        <img src="{{ candidate.image.url }}" class="card-img-top mb-3" style="width: 100%; height: auto; max-height: 200px; object-fit: cover;">
+                        {% else %}
+                        <img src="{% static 'images/default-avatar.png' %}" class="card-img-top mb-3" style="width: 100%; height: auto; max-height: 200px; object-fit: cover;">
+                        {% endif %}
+                        <h5 class="card-title">{{ candidate.user.username }}</h5>
+                        <p class="card-text">Қосылған күні: {{ candidate.date_added|date:"d M Y" }}</p>
+                    </div>
                 </div>
-            </div>
+            </a>
         </div>
         {% endfor %}
     </div>

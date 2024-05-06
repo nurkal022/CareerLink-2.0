@@ -1,0 +1,55 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>{{ specialization.title }} - Толық мәліметтер</h2>
+    <p>{{ specialization.description }}</p>
+    <p>Барлық сынақтар саны: {{ total_attempts }}</p>
+    <p>Сәтті өткен сынақтар: {{ passed_attempts }}</p>
+    <p>Сәтсіз сынақтар: {{ failed_attempts }}</p>
+
+    <!-- График для отображения статистики -->
+    <div class="chart-container" style="position: relative; height:40vh; width:80vw;">
+        <canvas id="passFailChart"></canvas>
+    </div>
+
+    <h3>Барлық сынақтар:</h3>
+    <ul>
+        {% for attempt in attempts %}
+        <li>Дұрыс жауаптар: {{ attempt.correct_answers }} / {{ attempt.total_questions }} - Пайыз: {{ attempt.score }}%</li>
+        {% endfor %}
+    </ul>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    var ctx = document.getElementById('passFailChart').getContext('2d');
+    var passFailChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['Сәтті өткен сынақтар', 'Сәтсіз сынақтар'],
+            datasets: [{
+                label: 'Результаты тестирования',
+                data: [{{ passed_attempts }}, {{ failed_attempts }}],
+                backgroundColor: [
+                    'rgba(75, 192, 192, 0.9)',
+                    'rgba(255, 99, 132, 0.9)'
+                ],
+                borderColor: [
+                    'rgba(75, 192, 192, 1)',
+                    'rgba(255, 99, 132, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+            },
+        }
+    });
+</script>
+{% endblock %}

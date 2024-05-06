@@ -12,10 +12,11 @@
                         <h4 class="mb-3">{{ spec.title }}</h4>
                         <p class="mb-4">{{ spec.description }}</p>
                         {% if user.is_authenticated %}
-                        <a href="{% url 'test' spec.id %}" class="btn btn-secondary text-white px-5 py-3 rounded-pill">Start Test</a>
+                        <a href="{% url 'test' spec.id %}" class="btn btn-secondary text-white px-5 py-3 rounded-pill">Тесттен өту</a>
                         {% endif %}
 
-                        <a href="{% url 'view_candidates' spec.id %}" class="btn btn-primary text-white px-5 py-3 rounded-pill">View Candidates</a>
+                        <a href="{% url 'view_candidates' spec.id %}" class="btn btn-primary text-white px-5 py-3 rounded-pill">Кандидаттарды көру</a>
+                        <a href="{% url 'specialization_detail' spec.id %}" class="btn btn-info text-white px-5 py-3 rounded-pill">Толық мәлімет</a>
                     </div>
                 </div>
             </div>

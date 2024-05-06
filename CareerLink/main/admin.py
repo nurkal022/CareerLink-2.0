@@ -16,3 +16,4 @@ class QuestionAdmin(admin.ModelAdmin):
 admin.site.register(Specialization)
 admin.site.register(Candidate)
 admin.site.register(Question, QuestionAdmin)
+admin.site.register(ContactRequest)

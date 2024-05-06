@@ -6,35 +6,14 @@
         <div class="col-md-8 offset-md-2">
             <div class="card">
                 <div class="card-header">
-                    <h2 class="text-center">Edit Your Profile</h2>
+                    <h2 class="text-center">Профильді өзгерту</h2>
                 </div>
                 <div class="card-body">
                     <form method="post" enctype="multipart/form-data">
                         {% csrf_token %}
-                        <div class="form-group mb-3">
-                            <label for="username">Username:</label>
-                            <input type="text" class="form-control" id="username" value="{{ candidate.user.username }}" disabled>
-                        </div>
-                        <div class="form-group mb-3">
-                            <label for="email">Email:</label>
-                            <input type="email" class="form-control" id="email" value="{{ candidate.user.email }}" disabled>
-                        </div>
-                        <div class="form-group mb-3">
-                            <label for="specialization">Specialization:</label>
-                            <input type="text" class="form-control" id="specialization" value="{{ candidate.specialization.title }}" disabled>
-                        </div>
-                        <div class="form-group mb-3">
-                            <label for="biography">Biography:</label>
-                            <textarea class="form-control" id="biography" name="biography" rows="5">{{ form.biography.value }}</textarea>
-                        </div>
-                        <div class="form-group mb-3">
-                            <label for="image">Profile Image:</label>
-                            <input type="file" class="form-control-file" id="image" name="image">
-                            {% if candidate.image %}
-                                <img src="{{ candidate.image.url }}" alt="Current Image" class="img-fluid mt-2" style="max-width: 100px;">
-                            {% endif %}
-                        </div>
-                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                        {{ user_form.as_p }}
+                        {{ candidate_form.as_p }}
+                        <button type="submit" class="btn btn-primary">Өзгерістерді сақтау</button>
                     </form>
                 </div>
             </div>

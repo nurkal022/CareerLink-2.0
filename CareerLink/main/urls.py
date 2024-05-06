@@ -5,7 +5,7 @@ from . import views
 urlpatterns = [
     path("", views.home, name="home"),
     path("about", views.about, name="about"),
-    path("contact", views.contact, name="contact"),
+    path("contact", views.contact_view, name="contact"),
     path("service", views.service, name="service"),
     path(
         "choose_specialization",
@@ -23,4 +23,10 @@ urlpatterns = [
     path("candidates/<int:spec_id>/", views.view_candidates, name="view_candidates"),
     path("profile/edit/", views.candidate_profile, name="profile_edit"),
     path("profile/", views.profile_view, name="profile_view"),
+    path("contact/submit/", views.submit_contact, name="contact_submit"),
+    path(
+        "specialization/<int:spec_id>/",
+        views.specialization_detail,
+        name="specialization_detail",
+    ),
 ]

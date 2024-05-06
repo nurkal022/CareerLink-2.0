@@ -4,7 +4,7 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h2 class="mb-4">{{ specialization.title }} Test</h2>
+    <h2 class="mb-4">{{ specialization.title }} Тест</h2>
     <form action="{% url 'submit_test' spec_id=specialization.id %}" method="post">
         {% csrf_token %}      
         {% for question in specialization.questions.all %}
@@ -22,7 +22,10 @@
             </div>
         </div>
         {% endfor %}
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="submit" class="btn btn-primary">Жіберу</button>
     </form>
 </div>
+<div class="container mt-5"></div>
+
+
 {% endblock %}
